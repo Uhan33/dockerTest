@@ -1,5 +1,5 @@
 # Base image
-FROM node:18 AS builder
+FROM node:18 AS development
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -15,15 +15,17 @@ RUN npm install
 
 # Creates a "dist" folder with the production build
 RUN npm run build
-
-#6
+# AS production
 FROM node:18-alpine
-#7
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
 WORKDIR /usr/src/app
-#8
-ENV NODE_ENV production
-#9
-COPY --from=builder /usr/src/app ./
+
+COPY --from=development /usr/src/app ./
+
+EXPOSE 3000
 
 # Start the server using the production build
-CMD [ "node", "dist/main.js" ]
+CMD ["npm", "run", "start:dev"]
